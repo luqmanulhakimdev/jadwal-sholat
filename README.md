@@ -12,6 +12,12 @@ Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introdu
 
 ![Halaman detail jadwal sholat](screenshots/city-detail.png)
 
+## Deploy ke GitHub Pages
+
+Setelah workflow GitHub Actions aktif, setiap push ke branch `main` akan membangun dan menerbitkan situs secara otomatis. Tidak perlu menjalankan generate di komputer lokal.
+
+Aktifkan satu kali melalui **Settings → Pages → Build and deployment → Source → GitHub Actions**. Status deploy dapat dilihat di tab **Actions**.
+
 ## Setup
 
 Make sure to install the dependencies:
