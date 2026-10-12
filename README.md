@@ -2,6 +2,16 @@
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
+## Screenshot
+
+### Halaman utama
+
+![Halaman utama WaktuSholat](screenshots/home.png)
+
+### Detail jadwal sholat kota
+
+![Halaman detail jadwal sholat](screenshots/city-detail.png)
+
 ## Setup
 
 Make sure to install the dependencies:

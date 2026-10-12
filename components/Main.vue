@@ -1,81 +1,83 @@
 <template>
-	<div class="relative bg-white overflow-hidden my-20 mx-auto max-w-7xl">
-		<div class="flex flex-col">
-		  <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-		    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-		      <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-				<form class="flex items-center max-w-full my-5" @submit.prevent="onSubmit">   
-					<label for="simple-search" class="sr-only">Search</label>
-					<div class="relative w-full">
-						<div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-							<svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
-								<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-							</svg>
-						</div>
-						<input type="text" v-model="form.search" id="simple-search" class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full ps-10 p-2.5 dark:border-gray-600 dark:placeholder-gray-400" placeholder="Search city..." required />
-					</div>
-					<button type="submit" class="p-2.5 ms-2 text-sm font-medium text-white bg-indigo-600 rounded-lg border border-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 dark:bg-indigo-600 dark:hover:bg-indigo-600 dark:focus:ring-indigo-800">
-						<svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-							<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-						</svg>
-						<span class="sr-only">Search</span>
-					</button>
-				</form>
+  <main class="home-main page-shell">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-dot" /> JADWAL SHOLAT INDONESIA</p>
+        <h1 id="hero-title">Temukan jadwal <span>sholatmu.</span></h1>
+        <p class="hero-description">Pilih kota untuk melihat waktu sholat harian yang sesuai dengan lokasimu.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true"><span class="art-sun"/><svg viewBox="0 0 300 180" fill="none"><path d="M0 166h300M32 166v-42h38v42m111 0V97h51v69m-25-69V69h28v28m-14-28V43m-8 26 8-11 8 11m-158 97V88l28-25 28 25v78m-49-47h42m-42 21h42m-21-21v37m-35-93 35-31 35 31" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M224 166v-39h20v39m-190 0v-27h15v27" stroke="currentColor" stroke-width="3"/></svg></div>
+    </section>
 
-		        <table class="min-w-full divide-y divide-gray-200">
-		          <thead class="bg-gray-50">
-		            <tr>
-		              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">
-		                No
-		              </th>
-		              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/7">
-		                Kota
-		              </th>
-		            </tr>
-		          </thead>
-		          <tbody class="bg-white divide-y divide-gray-200">
-		            <tr v-for="(item, index) in city" :key="item.id">
-		              <td class="px-6 py-4 w-1/5">
-		                {{ ++index }}
-		              </td>
-		              <td class="px-6 py-4 w-2/7">
-		                <div class="text-sm text-gray-900">
-		                	<NuxtLink :to="`/city/${item.id}`">{{ item.lokasi }}</NuxtLink>
-		                </div>
-		              </td>
-		            </tr>
-		          </tbody>
-		        </table>
-		      </div>
-		    </div>
-		  </div>
-		</div>
-	</div>
+    <section class="search-panel surface-card" aria-labelledby="search-title">
+      <div class="section-heading"><div><p class="eyebrow">MULAI DI SINI</p><h2 id="search-title">Cari kota atau kabupaten</h2></div></div>
+      <form class="search-form" role="search" @submit.prevent="searchCities">
+        <label class="sr-only" for="city-search">Cari kota atau kabupaten</label>
+        <div class="search-input-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.2 4.2"/></svg><input id="city-search" v-model.trim="query" type="search" placeholder="Cari kota atau kabupaten..." autocomplete="off" /></div>
+        <button class="button-primary" type="submit" :disabled="loading">{{ loading ? 'Mencari…' : 'Cari jadwal' }}</button>
+      </form>
+      <p v-if="error" class="state-message error-message" role="alert">{{ error }} <button class="text-button" type="button" @click="loadCities">Coba lagi</button></p>
+      <p v-else-if="loading" class="state-message" role="status">Memuat daftar kota…</p>
+      <p v-else-if="searched && !city.length" class="state-message" role="status">Kota tidak ditemukan. Periksa ejaan atau coba nama kota lain.</p>
+      <p v-else-if="searched" class="results-label" role="status">{{ city.length }} hasil pencarian</p>
+    </section>
+
+    <section v-if="!searched && !loading && !error" class="popular-section" aria-labelledby="popular-title">
+      <div class="section-heading"><div><p class="eyebrow">AKSES CEPAT</p><h2 id="popular-title">Kota populer</h2></div></div>
+      <div class="popular-grid">
+        <NuxtLink v-for="item in popularCities" :key="item.id" class="popular-card" :to="`/city/${item.id}`"><span class="city-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 20v-9l6-4 6 4v9m-8 0v-5h4v5M3 11l9-8 9 8"/></svg></span><span><strong>{{ cityName(item.lokasi) }}</strong><small>{{ item.daerah || 'Indonesia' }}</small></span><span class="arrow" aria-hidden="true">↗</span></NuxtLink>
+      </div>
+      <p v-if="!popularCities.length" class="hint-text">Cari kota melalui kolom di atas untuk menemukan jadwalnya.</p>
+    </section>
+
+    <section v-if="searched && city.length" class="city-section" aria-labelledby="results-title">
+      <div class="section-heading"><div><p class="eyebrow">{{ query ? 'HASIL PENCARIAN' : 'SELURUH INDONESIA' }}</p><h2 id="results-title">{{ query ? 'Kota yang cocok' : 'Daftar kota' }}</h2></div></div>
+      <div class="city-grid"><NuxtLink v-for="item in city" :key="item.id" class="city-card" :to="`/city/${item.id}`"><span><strong>{{ cityName(item.lokasi) }}</strong><small>{{ item.daerah || 'Indonesia' }}</small></span><span class="arrow" aria-hidden="true">→</span></NuxtLink></div>
+    </section>
+    <section v-else-if="!searched && !loading && !error" class="all-cities-link"><button class="text-button" type="button" @click="showAllCities">Lihat daftar seluruh kota <span aria-hidden="true">→</span></button></section>
+    <section v-if="searched && !loading && !error && city.length === 0" class="empty-hint">Belum menemukan kota yang dicari? Coba kata kunci lain.</section>
+  </main>
 </template>
 
-<script>
+<script setup>
 import axios from 'axios'
-export default {
-  	name: 'Main',
-  	data () {
-	    return {
-			form: {
-				search: ""
-			},
-	      	city: []
-	    }
-	},
-	mounted () {
-	    axios
-	      .get('https://api.myquran.com/v2/sholat/kota/semua')
-	      .then(response => (this.city = response.data.data))
-	},
-	methods: {
-		onSubmit() {
-			axios
-				.get('https://api.myquran.com/v2/sholat/kota/cari/'+this.form.search)
-				.then(response => (this.city = response.data.data))
-		}
-	}
+import { computed, onMounted, ref } from 'vue'
+const allCities = ref([])
+const city = ref([])
+const query = ref('')
+const loading = ref(false)
+const error = ref('')
+const searched = ref(false)
+const popularNames = ['jakarta', 'surabaya', 'bandung', 'yogyakarta']
+const popularCities = computed(() => popularNames.map(name => allCities.value.find(item => String(item.lokasi || '').toLowerCase().includes(name))).filter(Boolean))
+function cityName(value) { return String(value || '').replace(/^(KOTA|KAB\.)\s+/i, '').replace(/\b\w/g, letter => letter.toUpperCase()) }
+
+async function loadCities() {
+  loading.value = true
+  error.value = ''
+  try {
+    const response = await axios.get('https://api.myquran.com/v2/sholat/kota/semua')
+    if (!Array.isArray(response.data?.data)) throw new Error('Format data kota tidak sesuai.')
+    allCities.value = response.data.data
+    city.value = allCities.value
+  } catch {
+    error.value = 'Daftar kota belum dapat dimuat. Periksa koneksi internet lalu coba lagi.'
+  } finally { loading.value = false }
 }
+async function searchCities() {
+  error.value = ''
+  if (!query.value) { searched.value = true; city.value = allCities.value; return }
+  loading.value = true
+  searched.value = true
+  try {
+    const response = await axios.get(`https://api.myquran.com/v2/sholat/kota/cari/${encodeURIComponent(query.value)}`)
+    if (!Array.isArray(response.data?.data)) throw new Error('Format hasil pencarian tidak sesuai.')
+    city.value = response.data.data
+  } catch {
+    city.value = []
+    error.value = 'Pencarian kota gagal. Periksa koneksi internet lalu coba lagi.'
+  } finally { loading.value = false }
+}
+function showAllCities() { city.value = allCities.value; searched.value = true; query.value = '' }
+onMounted(loadCities)
 </script>
